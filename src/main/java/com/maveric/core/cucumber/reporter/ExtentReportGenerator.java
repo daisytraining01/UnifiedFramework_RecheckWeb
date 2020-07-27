@@ -1,19 +1,49 @@
 package com.maveric.core.cucumber.reporter;
 
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.GherkinKeyword;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.maveric.core.cucumber.reporter.pojo.*;
+import com.maveric.core.config.ConfigProperties;
+import com.maveric.core.cucumber.reporter.pojo.After;
+import com.maveric.core.cucumber.reporter.pojo.CucumberResults;
+import com.maveric.core.cucumber.reporter.pojo.Element;
+import com.maveric.core.cucumber.reporter.pojo.Step;
+import com.maveric.core.cucumber.reporter.pojo.Tag;
+import com.maveric.core.testng.listeners.ReportListener;
 import com.maveric.core.testng.reporter.CustomReporter;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class CucumberReporter {
+import static org.apache.commons.io.FileUtils.readFileToString;
 
-    private static final String SEPARATOR = System.getProperty("file.separator");
+
+public class ExtentReportGenerator {
+
+	private static final String SEPARATOR = System.getProperty("file.separator");
     public static String testCaseName = "";
     public static String lineSeparator = System.getProperty("line.separator");
     public static int totalFeatures = 0;
@@ -21,9 +51,20 @@ public class CucumberReporter {
     public static int totalScenarios=0;
     public static int passedScenarios=0;
     public static String featureTags = "";
-   //public static String featureDesc = "";
+    public static String featureDesc = "";
+    
+    //ExtentReport Related
+    static ExtentHtmlReporter htmlReporter;
+    static ExtentReports html;
+    static ExtentTest Feature;
+    static ExtentTest scenario;
 
     public static void generateCucumberReport() {
+    	
+    	htmlReporter=new ExtentHtmlReporter("D:\\Test\\SampleExtentReport.html");
+    	html=new ExtentReports();
+    	html.attachReporter(htmlReporter);
+    	
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
@@ -35,13 +76,16 @@ public class CucumberReporter {
                     new File(cucumberResultsDir + SEPARATOR + "cucumber.json"),
                     CucumberResults[].class);
             
-            //featureDesc=results[0].id;
-
+            
+            
             for (CucumberResults result : results) {
             	
             	if (result.keyword.equalsIgnoreCase("feature")) {
-
-                    totalFeatures++;
+            		
+            		
+            		Feature=html.createTest(new GherkinKeyword("Feature"),result.name);
+            		totalFeatures++;
+          
 
                     StringBuilder builder = new StringBuilder();
                     String featureName = result.name;
@@ -50,7 +94,7 @@ public class CucumberReporter {
                     // String featureUri = result.getUri();
                     boolean featureStatus = true;
                     List<Tag> tags = result.tags;
-                    featureTags = tags.get(0).name;
+                    //featureTags = tags.get(0).name;
 
                     List<Element> elements = result.elements;
                     int scenarioCount = 0;
@@ -65,6 +109,13 @@ public class CucumberReporter {
                             scenarioCount++;
                             boolean testStatus = true;
                             String scenarioName = element.name;
+                            
+                            scenario=Feature.createNode(new GherkinKeyword(element.type),element.name);
+                            
+                            List<Tag> scenarioTags=element.tags;
+                            for(Tag tmp:scenarioTags) {
+                            	scenario.assignCategory(tmp.name);
+                            }
                             // String scenarioDesc = element.getDescription();
                             // String scenarioID = element.getId();
                             // String scenarionKeyword = element.getKeyword();
@@ -96,6 +147,9 @@ public class CucumberReporter {
                                 String stepKeyword = step.keyword;
                                 String stepResult = step.result.status;
                                 List<String> output = step.output.stream().map(s -> s + "<br>").collect(Collectors.toList());
+                                
+                                System.out.println(step.keyword + step.name);
+                                scenario.createNode(new GherkinKeyword(step.keyword.trim()), step.name);
 
 
                                 stepCount++;
@@ -105,6 +159,7 @@ public class CucumberReporter {
 
                                 if (stepResult.equalsIgnoreCase("passed")) {
                                     testStatus = true;
+                                    scenario.pass("Pass");
 
                                 } else if (stepResult.equalsIgnoreCase("failed") && !skipNextSteps) {
 
@@ -116,8 +171,23 @@ public class CucumberReporter {
                                         stepLogs.add(String.join("", afterOutput));
                                     }
                                 }
-
+                                
+                                System.out.println("Step Logs"+stepLogs);
                                 String logs = String.join("", stepLogs);
+                                
+                                Pattern p = Pattern.compile("[a-z0-9-A-z/]*.[p&t][x&n][t&g]");
+                                Matcher m = p.matcher(logs);
+                                String tmp="";
+                                while(m.find()) {
+                                	tmp=m.group();
+                                    System.out.println("D:/Test/"+m.group());
+                                    scenario.addScreenCaptureFromPath(tmp);
+                                }
+                                
+                                //System.out.println("Extracted Logs"+tmp);
+                                
+                                //scenario.addScreenCaptureFromPath("D:\\Test\\"+tmp);
+                                
 
                                 if (testStatus) {
                                     scenarioLogs.add(CustomReporter.appendStepPass(logs, name, count).toString());
@@ -145,10 +215,11 @@ public class CucumberReporter {
 
                     if (featureStatus)
                         passedFeatures++;
-                    CustomReporter.appendFeature(featureName, builder, scenarioCount, passedScenarioCount);
+                    //CustomReporter.appendFeature(featureName, builder, scenarioCount, passedScenarioCount);
                     totalScenarios=scenarioCount;
                     passedScenarios=passedScenarioCount;
                     System.out.println("Total Scenarios>>>>>>"+totalScenarios+"Passed Sceanrio>>>>"+passedScenarios);   
+                    html.flush();
 
                 }
             }
@@ -160,6 +231,4 @@ public class CucumberReporter {
 
     }
 
-
 }
-

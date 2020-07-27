@@ -1,20 +1,38 @@
-@web
-Feature: Demo Bank Feature
+Feature: Demo Bank Feature using UTAF Report
 
-  Background: login
-    Given Login to "http://dbankdemo.com/home"
-
- 
-  Scenario: Transfer the amount between the Savings Accounts
-    Given Login using the User credentials
-		|TC_ID|TC001|
-    Then Check the balance of "Account-1" Savings Account
-	When Transfer "2.00" from "Account-1" Acc to "Account-2" Acc
-
-
- Scenario: Verify the transaction status in the Savings Accounts
-    Given Login using the User credentials
-		|TC_ID|TC001|
-	#Then Check the balance of "Account-1" Savings Account	
-    Then Verify the amount "2.00" got "debited" in "Account-1" Account
-	And Verify the amount "2.00" got "credited" in "Account-2" Account
+   Background: Perform the Transaction
+   Given Access the URL in the "desktop-web"
+    And Enter the User Credentials and Signin as Maveric Systems
+    Then Check the balance of Source Checking Account
+	When Perform Transfer between two Savings Account
+   
+   @webnegative
+   Scenario Outline: <TC_ID>_<TC_Description>
+    Given Access the URL in the "desktop-web"
+    And Enter the User Credentials and Signin as Maveric Systems
+    Then Check the balance of Source Checking Account
+	#When Perform Transfer between two Savings Account
+	#Given Access the URL in the "mobile-web" 
+	#When Enter the User Credentials and Signin as JohnSmith
+	#Then Verify the transaction status in JohnSmith Account
+		
+	Examples:
+	|TC_ID|TC_Description|
+	|TC001|Transfer the Salary amount to the Employee Account|
+	#|TC002|Transfer the Salary amount to the Employee Account|
+	
+	#|TC003|Transfer the Salary amount to the Employee Account|
+	#|TC004|Transfer the Salary amount to the Employee Account|
+	#|TC005|Transfer the Salary amount to the Employee Account|
+	#|TC006|Transfer the Salary amount to the Employee Account|
+  
+   @webnegative
+   Scenario Outline: <TC_ID>_<TC_Description>
+    Given Access the URL in the "mobile-web" 
+	When Enter the User Credentials and Signin as JohnSmith
+	Then Verify the transaction status in JohnSmith Account
+		
+	Examples:
+	|TC_ID|TC_Description|
+	|TC001|Transfer the Salary amount to the Employee Account|
+	#|TC002|Transfer the Salary amount to the Employee Account|

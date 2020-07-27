@@ -13,12 +13,13 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
-import com.aventstack.extentreports.reporter.configuration.Theme;
 import com.maveric.core.testng.BaseTest;
+import com.maveric.core.testng.listeners.DriverListener;
 import com.maveric.core.testng.listeners.ReportListener;
+import com.maveric.core.testng.listeners.TestListener;
 
 import io.cucumber.testng.CucumberOptions;
 import io.cucumber.testng.FeatureWrapper;
@@ -31,6 +32,7 @@ import io.cucumber.testng.TestNGCucumberRunner;
         "json:target/cucumber.json"
 }, extraGlue = "com.maveric.core.cucumber"
 )
+@Listeners({DriverListener.class,TestListener.class})
 public class CucumberBaseTest extends BaseTest implements ITest {
 
     private static final Logger logger = LogManager.getLogger();
@@ -48,6 +50,7 @@ public class CucumberBaseTest extends BaseTest implements ITest {
     @BeforeMethod(alwaysRun = true)
     public void setTestName(Method method, Object[] testData) {
         Pickle pickle = ((PickleWrapper) testData[0]).getPickle();
+
         String scenarioName = pickle.getName();
         this.scenarioName.set(scenarioName);
         logger.info("START {}", scenarioName);
@@ -64,6 +67,7 @@ public class CucumberBaseTest extends BaseTest implements ITest {
 
     @DataProvider()
     public Object[][] scenarios() {
+
 
         return testNGCucumberRunner.provideScenarios();
     }
@@ -94,7 +98,6 @@ public class CucumberBaseTest extends BaseTest implements ITest {
     @AfterClass(alwaysRun = true)
     public void tearDownClass() {
         testNGCucumberRunner.finish();
-        
         
     }
 

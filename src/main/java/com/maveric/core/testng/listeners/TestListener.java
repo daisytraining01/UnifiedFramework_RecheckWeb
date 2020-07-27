@@ -42,6 +42,7 @@ public class TestListener implements ISuiteListener, ITestListener {
 
         if (suite.getXmlSuite().getParallel() == XmlSuite.ParallelMode.NONE) {
             suite.getXmlSuite().setParallel(XmlSuite.ParallelMode.METHODS);
+            //suite.getXmlSuite().setThreadCount(threadCount);
             logger.info("Parallel Type : Methods");
         }
 

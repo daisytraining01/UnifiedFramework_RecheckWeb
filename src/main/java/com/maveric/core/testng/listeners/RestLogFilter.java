@@ -38,7 +38,7 @@ public class RestLogFilter implements Filter {
         response.getHeaders().asList().forEach(header -> responseBuilder.append(header).append("\n"));
         responseBuilder.append("Body : ").append("\n").append(response.getBody().asString()).append("\n");
         String path = writeResponse(requestBuilder.append(responseBuilder));
-        String html = "<a target=_blank href=" + path.replaceAll(" ", "%20") + ">" + "API Call" + "</a>";
+        String html = "<a target=_blank href=" + path.replaceAll(" ", "%20") + ">" + "API Call Log" + "</a>";
         Report.log(html);
         return response;
     }
@@ -46,9 +46,8 @@ public class RestLogFilter implements Filter {
 
     public String writeResponse(StringBuilder data) {
         String random = UUID.randomUUID().toString();
-        String filePath = "/api/" + random;
-        File file = new File(
-                "/reports" + filePath);
+        String filePath = "api/" + random;
+        File file = new File(ReportListener.reportFolder+filePath);
         file.mkdirs();
         writeFile(file + "/Output.txt", data.toString());
         return "./" + filePath + "/Output.txt";
@@ -56,6 +55,7 @@ public class RestLogFilter implements Filter {
 
 
     public void writeFile(String fileLocation, String text) {
+    	System.out.println(">>>>>Writting the log into"+fileLocation);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileLocation))) {
             writer.write(text);
         } catch (Exception e) {

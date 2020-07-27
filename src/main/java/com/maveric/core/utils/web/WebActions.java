@@ -41,6 +41,7 @@ public class WebActions {
             String screenshotPath = ReportListener.screenshotFolder + screenshotName;
             System.out.println(screenshotPath);
             FileUtils.copyFile(file, new File(screenshotPath));
+            FileUtils.copyFile(file, new File(System.getProperty("user.dir")+"/test-output/HtmlReport/screenshots"+screenshotName));
 
         } catch (Exception e) {
             logger.error("unable to capture screenshot" + e);

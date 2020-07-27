@@ -53,8 +53,11 @@ public class ReportListener implements ISuiteListener,ITestListener, IInvokedMet
 	@Override
 	public void afterInvocation(IInvokedMethod method, ITestResult result) {
 
-		if (method.isTestMethod())
-			if (!isCucumber) {
+		System.out.println(method.getTestMethod().getMethodName()+">>>"+Reporter.getOutput()+"------------"+Reporter.getOutput(result));
+		
+		if (!method.isTestMethod())
+			if (!isCucumber) 
+			{
 				String testExecTime = convert(result.getEndMillis() - result.getStartMillis());
 				if (!result.isSuccess()) {
 					StringWriter sw = new StringWriter();
@@ -72,10 +75,16 @@ public class ReportListener implements ISuiteListener,ITestListener, IInvokedMet
 						testName = testName + "_Retry_" + currentReteryCount;
 					}
 					CustomReporter.appendFail(logs, testName, testExecTime);
-				}
+			}
+				
+				
 
 			}
+			
 	}
+	
+	
+	
 
 	public String convert(long miliSeconds) {
 		int hrs = (int) TimeUnit.MILLISECONDS.toHours(miliSeconds) % 24;
@@ -98,8 +107,8 @@ public class ReportListener implements ISuiteListener,ITestListener, IInvokedMet
 		} else {
 
 			CucumberReporter.generateCucumberReport();
-			CustomReporter.updateValues(CucumberReporter.passedFeatures,
-					CucumberReporter.totalFeatures - CucumberReporter.passedFeatures, endDate, executionTime,
+			CustomReporter.updateValues(CucumberReporter.passedScenarios,
+					CucumberReporter.totalScenarios - CucumberReporter.passedScenarios, endDate, executionTime,
 					CucumberReporter.featureTags);
 
 		}

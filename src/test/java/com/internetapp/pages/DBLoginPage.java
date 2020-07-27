@@ -3,17 +3,13 @@ package com.internetapp.pages;
 import com.maveric.core.config.ConfigProperties;
 import com.maveric.core.driver.Driver;
 import com.maveric.core.driver.DriverFactory;
+import com.maveric.core.driver.DriverFactory.Browser;
 import com.maveric.core.utils.web.WebActions;
 
-import de.retest.recheck.RecheckImpl;
-import de.retest.web.selenium.RecheckDriver;
-import de.retest.web.selenium.UnbreakableDriver;
 import io.appium.java_client.AppiumDriver;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -28,7 +24,6 @@ public class DBLoginPage extends WebActions{
     private final By txt_password = By.name("password");
     private final By txt_pin = By.name("accpin");
     private final By btn_submit = By.id("submit");
-    public RecheckImpl recheckin;
     
     WebDriverWait wait;
     //WebDriver driver;
@@ -48,52 +43,63 @@ public class DBLoginPage extends WebActions{
         driver.navigate().to(url);
 
         logScreenshot("login");
-        ;
+        
         log("sample log");
 
         return this;
 
     }
     
-    public DBLoginPage navigateUpdated(String url,String driverType) throws InterruptedException {
+    public DBLoginPage navigateUpdated(String url,String driverType) {
     	
     	//DriverFactory.downloadDriver();
-    	//System.setProperty("webdriver.chrome.driver", "D:\\Test\\chromedriver.exe");
-    	System.setProperty("webdriver.chrome.driver", "D:\\workspace\\UnifiedFramework3\\DemoPrepLatest\\Drivers\\chromedriver.exe");
-    	recheckin = new RecheckImpl();
+    	System.setProperty("webdriver.chrome.driver", "D:\\Test\\chromedriver.exe");
+    	
+    	//driverFactory.createDriver(Browser.chrome);
     	
     	if(driverType.contains("desktop")) {
-    		this.driver = driverFactory.driverSetup();
-    		//driver = new RecheckDriver(new ChromeDriver()); 
-    		driver = new RecheckDriver((RemoteWebDriver) this.driver); 	
-    		//driver = new UnbreakableDriver( (RemoteWebDriver) this.driver );
+    		
+    		driver = driverFactory.driverSetup();
+    		System.out.println("desktop driver is ready");
     	}
-    	
     	if(driverType.contains("mobile")) {
     		
-    		System.out.println("Mobile Driver to be set");
-/*    		if (driver.toString()!= ""){ 
-    			driver.quit();
-    			System.out.println("Quit the existing driver");
-    			Thread.sleep(2000);
-    		}*/
-    		this.driver=driverFactory.mobdriverSetup();
-    		driver = new RecheckDriver((RemoteWebDriver) this.driver); 
+    		driver=driverFactory.mobdriverSetup();
     		System.out.println("mobile driver is ready");
     	}
+    	System.out.println(driver);
     	
-		System.out.println("desktop driver is ready");
-		recheckin.startTest();
-		System.out.println("### recheckin start ###");
-		
-    	System.out.println("Driver Instantiated is : " + driver);
     	driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
         driver.navigate().to(url);
-        recheckin.check( driver, "initial" );
-        recheckin.capTest();
         wait=new WebDriverWait(driver, 30);
         
-        System.out.println("$$$$$ Navigated to the URL $$$$$");
+
+        logScreenshot("login");
+        ;
+        log("sample log");
+        
+            
+        return this;
+
+    }
+    
+    
+    
+    public DBLoginPage navigateDiff(String url,String driverType) {
+    	
+    	//DriverFactory.downloadDriver();
+    	System.setProperty("webdriver.chrome.driver", "D:\\Test\\chromedriver.exe");
+    	
+    	driver=driverFactory.createDriver(Browser.chrome);
+    	
+    	
+    	System.out.println(driver);
+    	
+    	driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+        driver.navigate().to(url);
+        wait=new WebDriverWait(driver, 30);
+        
+
         logScreenshot("login");
         ;
         log("sample log");

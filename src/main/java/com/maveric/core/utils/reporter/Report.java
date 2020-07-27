@@ -16,7 +16,7 @@ public class Report {
         if (CucumberListener.getScenario() != null) {
             CucumberListener.getScenario().log(getTimestamp() + " : " + message);
         } else {
-            Reporter.log(getTimestamp() + " : " + message);
+            Reporter.log(getTimestamp() + " : " + message+"<br>");
         }
     }
 
