@@ -53,7 +53,7 @@ public class RestLogFilter implements Filter {
                 "/reports" + filePath);
         file.mkdirs();
         writeFile(file + "/Output.txt", data.toString());
-        return "./" + filePath + "/Output.txt";
+        return filePath + "/Output.txt";
     }
 
 

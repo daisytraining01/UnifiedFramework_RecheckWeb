@@ -9,7 +9,7 @@ import org.testng.annotations.Listeners;
 import com.aventstack.extentreports.testng.listener.ExtentITestListenerClassAdapter;
 import com.maveric.core.testng.listeners.DriverListener;
 
-@Listeners({DriverListener.class,ExtentITestListenerClassAdapter.class})
+@Listeners({DriverListener.class})
 public class BaseTest {
     @BeforeSuite(alwaysRun = true)
     private void beforeSuite() {

@@ -26,6 +26,7 @@ import org.testng.xml.XmlSuite;
 import com.maveric.core.config.ConfigProperties;
 import com.maveric.core.cucumber.CucumberListener;
 import com.maveric.core.cucumber.reporter.CucumberReporter;
+import com.maveric.core.cucumber.reporter.ExtentBDDReportGenerator;
 import com.maveric.core.driver.BrowserStackClient;
 import com.maveric.core.driver.Driver;
 import com.maveric.core.driver.DriverFactory;
@@ -131,7 +132,7 @@ public class DriverListener implements ISuiteListener, ITestListener, IInvokedMe
 
     @Override
     public void onFinish(ISuite suite) {
-    	
+    	ExtentBDDReportGenerator.generateCucumberReport();
         BrowserStackClient.stopBrowserStackLocal();
         BrowserStackClient.deleteFiles();
     }
